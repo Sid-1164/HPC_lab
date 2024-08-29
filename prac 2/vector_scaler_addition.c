@@ -2,11 +2,18 @@
 #include <stdlib.h>
 #include <omp.h>
 
-#define N 1000000 // Size of the vector
+#define N 10000000 // Size of the vector
 
 // Parallely add a scalar to each element of the vector
 void vectorScalarAdd(double *a, double scalar, int size) {
     #pragma omp parallel for
+    for (int i = 0; i < size; i++) {
+        a[i] += scalar;
+    }
+}
+
+// Sequentially add a scalar to each element of the vector
+void vectorScalarAddSequential(double *a, double scalar, int size) {
     for (int i = 0; i < size; i++) {
         a[i] += scalar;
     }
@@ -51,7 +58,21 @@ int main() {
     }
     printf("\n");
 
-    printf("Time taken: %f seconds\n", end_time - start_time);
+    printf("Time taken: %f seconds for Parallel\n", end_time - start_time);
+    double PrarallelExecTime = end_time - start_time;
+
+    // Perform vector scalar addition sequentially
+    start_time = omp_get_wtime();               // Get the start time
+    vectorScalarAddSequential(vector, scalar, N); // Perform vector scalar addition sequentially
+    end_time = omp_get_wtime();                 // Get the end time
+
+    // Print some results for verification
+
+    double SequentialExecTime = end_time - start_time;
+
+    printf("Time taken: %f seconds for Sequential\n", end_time - start_time);
+
+    printf("Speedup: %f\n", SequentialExecTime/PrarallelExecTime);
 
     free(vector);       
     return 0;
